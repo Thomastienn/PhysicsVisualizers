@@ -11,8 +11,19 @@ accuracy = accuracy/int((st.radio("Accuracy",
          )).split(" ")[0][1:])
 st.write(f"Acceleration per {accuracy}s")
 
-num_acce = st.slider('Number of accelerations changed', min_value=1, max_value=10)
+
+st.subheader("Initial Values")
 total_time = st.slider('Time', min_value=0, max_value=30, value=15)
+
+try:
+    initial_displacement = float(st.text_input("Initial Displacement", value=0))
+    initial_velocity = float(st.text_input("Initial Velocity", value=0))
+    initial_acceleration = float(st.text_input("Initial Acceleration", value=0))
+except ValueError:
+    pass
+
+st.subheader("Acceleration Configuration")
+num_acce = st.slider('Number of accelerations changed', min_value=1, max_value=10)
 t_acc, c_acc = st.columns(2)
 
 acces = []
@@ -32,32 +43,33 @@ def add_acce(num_acc):
 for i in range(num_acce):
     add_acce(i)
     
-def run():
+data_a = pd.DataFrame(columns=["Time", "Acceleration"])
+data_v = pd.DataFrame(columns=["Time", "Velocity"])
+data_d = pd.DataFrame(columns=["Time", "Displacement"])
+data_merged = pd.DataFrame()   
+
+if st.button(label="Run"):
     with st.spinner("Generating graphs..."):
-        data_acceleration = pd.DataFrame(columns=["Time", "Acceleration"])
-        data_velocity = pd.DataFrame(columns=["Time", "Velocity"])
-        data_displacement = pd.DataFrame(columns=["Time", "Displacement"])
-        
         data_dic = dict()
         for acc, time in zip(acces, acce_ts):
             data_dic[time] = acc
         
         sec = 0.0
-        current_acc = 0
-        current_velo = 0
-        current_dis = 0
+        current_acc = initial_acceleration
+        current_velo = initial_velocity
+        current_dis = initial_displacement
         while sec <= total_time:
             current_velo += current_acc*accuracy
             current_dis += current_velo*accuracy
             if(sec in data_dic):
                 current_acc = data_dic[sec]
-            data_acceleration.loc[sec-1] = [sec, current_acc]
-            data_velocity.loc[sec-1] = [sec, current_velo]
-            data_displacement.loc[sec-1] = [sec, current_dis]
+            data_a.loc[sec-1] = [sec, current_acc]
+            data_v.loc[sec-1] = [sec, current_velo]
+            data_d.loc[sec-1] = [sec, current_dis]
             
             sec = round(sec+accuracy, 5)
         
-        data_merged = pd.concat([data_acceleration, data_velocity, data_displacement], ignore_index=True, axis=1).drop([2,4], axis=1)
+        data_merged = pd.concat([data_a, data_v, data_d], ignore_index=True, axis=1).drop([2,4], axis=1)
         
         data_merged.rename(
             {0: "Time",
@@ -69,17 +81,10 @@ def run():
              }
             , axis=1, inplace=True)
         
-        st.line_chart(data=data_acceleration, x="Time", y="Acceleration")
-        st.line_chart(data=data_velocity, x="Time", y="Velocity")
-        st.line_chart(data=data_displacement, x="Time", y="Displacement")
+        st.line_chart(data=data_a, x="Time", y="Acceleration")
+        st.line_chart(data=data_v, x="Time", y="Velocity")
+        st.line_chart(data=data_d, x="Time", y="Displacement")
         st.line_chart(data=data_merged, x="Time")
         st.write(data_merged)
         
-        st.button("Summary", on_click=summary_data)
-        
-def summary_data():
-    st.write("")
-
-run_btn = st.button(label="Run", on_click=run)
-
-
+        # st.write("Total Displacement: " + str(round(data_merged["Displacement"].sum()*accuracy, 2)))
