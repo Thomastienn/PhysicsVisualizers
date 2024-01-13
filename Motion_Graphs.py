@@ -13,12 +13,14 @@ st.write(f"Acceleration per {accuracy}s")
 
 
 st.subheader("Initial Values")
-total_time = st.slider('Time', min_value=0, max_value=30, value=15)
+tab_iv1,tab_iv2,tab_iv3,tab_iv4 = st.columns(4)
+
+total_time = tab_iv1.slider('Time', min_value=0, max_value=30, value=15)
 
 try:
-    initial_displacement = float(st.text_input("Initial Displacement", value=0))
-    initial_velocity = float(st.text_input("Initial Velocity", value=0))
-    initial_acceleration = float(st.text_input("Initial Acceleration", value=0))
+    initial_displacement = float(tab_iv2.text_input("Initial Displacement", value=0))
+    initial_velocity = float(tab_iv3.text_input("Initial Velocity", value=0))
+    initial_acceleration = float(tab_iv4.text_input("Initial Acceleration", value=0))
 except ValueError:
     pass
 
