@@ -71,28 +71,17 @@ def full_dir_to_deg(full_dir):
         
     return v_degree
 
-
 def equal_full_dir(full_dir):
     deg = float(full_dir[1:-1])
-    flip_deg = 90-deg
-    if(full_dir == f"E{deg}N"):
-        return f"N{flip_deg}E"
-    
-    elif(full_dir == f"N{deg}W"):
-        return f"W{flip_deg}N"
-    
-    elif(full_dir == f"W{deg}S"):
-        return f"S{flip_deg}W"
-    
-    elif(full_dir == f"S{deg}E"):
-        return f"E{flip_deg}S"
-    
-    return full_dir
+    return f"{full_dir[-1]}{round(90-deg, 2)}{full_dir[0]}"
 
 def deg_to_full_dir(deg: float) -> list:
     if deg in deg_to_dir:
         return [deg_to_dir[deg]]
     dir = ""
+    while deg > 360:
+        deg -= 360
+    
     if(0 < deg < 90):
         dir = f"E{deg}N"
     
@@ -111,7 +100,7 @@ def  deg_to_rad(degree):
     return degree*math.pi/180    
 
 def vxy_to_full_dir(v_x,v_y):
-    if(vector_x_mag == 0):
+    if(v_x == 0):
         v_angle = 0
     else:
         v_angle = abs(round(math.degrees(math.atan(v_y/v_x)), 2))
@@ -149,9 +138,9 @@ if st.button("Calculate"):
             vector_magnitude = vectors_dict[p][0]
             
             if(cur_sym == "-"):
-                vector_direction = deg_to_full_dir(full_dir_to_deg(vector_direction)+180)[0]
+                # vector_direction = deg_to_full_dir(full_dir_to_deg(vector_direction)+180)[0]
                 vector_magnitude = -vector_magnitude
-            
+                        
             a_vector = vector_direction
             if(len(vector_direction) != 1):
                 vector_fixed = vector_direction[0]
@@ -164,8 +153,8 @@ if st.button("Calculate"):
                 
             v_deg = full_dir_to_deg(a_vector)
             
-            v_x = abs(math.cos(deg_to_rad(v_deg)))*vector_magnitude
-            v_y = abs(math.sin(deg_to_rad(v_deg)))*vector_magnitude
+            v_x = (math.cos(deg_to_rad(v_deg)))*vector_magnitude
+            v_y = (math.sin(deg_to_rad(v_deg)))*vector_magnitude
             
             v_xs.append(v_x)
             v_ys.append(v_y)
@@ -181,4 +170,5 @@ if st.button("Calculate"):
     vector_x_mag = round(vector_x_mag, 5)
     vector_y_mag = round(vector_y_mag, 5)
     
-    st.write(f"{user_in} = {round(v_magnitude,2)} {vxy_to_full_dir(vector_x_mag, vector_y_mag)}")
+    v_angle = vxy_to_full_dir(vector_x_mag, vector_y_mag)
+    st.write(f"{user_in} = {round(v_magnitude,2)} {v_angle} or {equal_full_dir(v_angle)}")

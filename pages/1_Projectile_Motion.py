@@ -12,6 +12,7 @@ tab1, tab2 = st.columns(2)
 
 initial_height = float(tab1.text_input("Initial Height (m)", value=0))
 initial_velocity = float(tab1.text_input("Initial Velocity (m/s)", value=2))
+final_height = float(tab1.text_input("Final Height (m)", value=0))
 
 accuracy = accuracy/int((tab2.radio("Accuracy",
          ["x1 (Good for preview)", "x10 (Best)", "x100 (Not recommended)", "x1000 (Scientific Purpose)"]
@@ -30,6 +31,7 @@ if st.button("Start"):
         
         t = 0
         cur_h = initial_height
+        prev_h = cur_h
         cur_v = initial_velocity
         distance_x = 0
         distance_y = 0
@@ -49,9 +51,10 @@ if st.button("Start"):
         
         with st.empty():
             while True:
-                if(t != 0 and cur_h <= 0):
+                if(t != 0 and cur_h <= final_height and prev_h > cur_h):
                     break
                 
+                prev_h = cur_h
                 distance.loc[t] = [t, cur_dist]
                 
                 distance_x += (abs(iv_x)*accuracy)
